@@ -8,7 +8,7 @@
 
     <GridLayout
         android:layout_width="match_parent"
-        android:layout_height="252dp"
+        android:layout_height="match_parent"
         android:paddingLeft="0dp"
         >
 
@@ -16,32 +16,36 @@
             android:text="Save"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/button"
-            android:layout_row="4"
+            android:id="@+id/save"
+            android:layout_row="1"
             android:layout_column="0"
             android:layout_alignParentRight="false"
             android:paddingLeft="0dp"/>
 
         <ImageView
             android:layout_width="match_parent"
-            android:layout_height="196dp"
+            android:layout_height="200dp"
             app:srcCompat="@android:drawable/ic_menu_camera"
-            android:id="@+id/imageView4"
-            android:layout_row="1"
+            android:id="@+id/picture"
+            android:layout_row="0"
             android:layout_column="0"/>
 
-    </GridLayout>
+
 
     <Button
         android:text="Decode"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/decode"/>
+        android:id="@+id/decode"
+        android:layout_row="2"
+        android:layout_column="0"/>
 
     <Button
         android:text="Encode"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_row="3"
+        android:layout_column="0"
         android:id="@+id/encode"/>
 
     <TextView
@@ -49,14 +53,19 @@
         android:textAlignment="center"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/textView2"/>
+        android:id="@+id/textView2"
+        android:layout_row="4"
+        android:layout_column="0"/>
 
     <EditText
         android:layout_width="match_parent"
-        android:layout_height="139dp"
+        android:layout_height="200px"
         android:inputType="textPersonName"
-        android:text=""
+        android:text="type message here"
         android:ems="10"
+        android:layout_row="5"
+        android:layout_column="0"
         android:id="@+id/editText"/>
 
+    </GridLayout>
 </LinearLayout>
