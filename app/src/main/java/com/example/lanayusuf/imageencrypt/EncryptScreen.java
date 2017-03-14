@@ -12,7 +12,6 @@ import android.widget.ImageView;
 
 public class EncryptScreen extends AppCompatActivity {
 
-
     PictureCoder pc = new PictureCoder();
 
     @Override
@@ -29,7 +28,7 @@ public class EncryptScreen extends AppCompatActivity {
         {
             public void onClick(View v){
                 // encode button has been pressed
-                pc.encode();
+                pc.encode(getApplicationContext());
             }
         });
 
