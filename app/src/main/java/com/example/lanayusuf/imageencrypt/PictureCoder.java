@@ -115,37 +115,74 @@ public class PictureCoder {
 
         int row = 0;
 
-        while (messagePos < message.length() && row < numRows) {
+        // Need to fill in rest of pixels with original image pixels
+
+        while (row < numRows) {
 
             int col = 0;
 
-            while (messagePos < message.length() && col < numCols) {
+            while (col < numCols) {
 
-                int overflow = 0;
+                if (messagePos >= message.length()) {
 
-                // Keep track of the position of the pixels encoding the character
+                    int pixInt = picture.getPixel(row, col);
 
-                int[] pixPos1 = {row, col};
+                    outPicture.setPixel(row, col, pixInt);
 
-                int[] pixPos2 = {-1, -1};
+                    col++;
 
-                int[] pixPos3 = {-1, -1};
+                } else {
 
-                if (col + 1 == numCols) {
+                    // Keep track of the position of the pixels encoding the character
 
-                    // Both pixels overflow
+                    int[] pixPos1 = {row, col};
 
-                    overflow = 2;
+                    int[] pixPos2 = {-1, -1};
 
-                    row++;
-
-                    col = 0;
-
-                    pixPos2[0] = row;
-
-                    pixPos2[1] = col;
+                    int[] pixPos3 = {-1, -1};
 
                     if (col + 1 == numCols) {
+
+                        // Both pixels overflow
+
+                        row++;
+
+                        col = 0;
+
+                        pixPos2[0] = row;
+
+                        pixPos2[1] = col;
+
+                        if (col + 1 == numCols) {
+
+                            row++;
+
+                            col = 0;
+
+                            pixPos3[0] = row;
+
+                            pixPos3[1] = col;
+
+                        } else {
+
+                            col++;
+
+                            pixPos3[0] = row;
+
+                            pixPos3[1] = col;
+
+                        }
+
+
+                    } else if (col + 2 == numCols) {
+
+                        // Only 1 pixel overflows
+
+                        col++;
+
+                        pixPos2[0] = row;
+
+                        pixPos2[1] = col;
 
                         row++;
 
@@ -157,6 +194,14 @@ public class PictureCoder {
 
                     } else {
 
+                        // No overflow
+
+                        col++;
+
+                        pixPos2[0] = row;
+
+                        pixPos2[1] = col;
+
                         col++;
 
                         pixPos3[0] = row;
@@ -165,178 +210,143 @@ public class PictureCoder {
 
                     }
 
+                    int[] charAsciiBin = getBits((int) message.charAt(messagePos));
 
-                } else if (col + 2 == numCols) {
+                    messagePos++;
 
-                    // Only 1 pixel overflows
+                    int pix1Int = picture.getPixel(pixPos1[0], pixPos1[1]);
 
-                    overflow = 1;
+                    int pix2Int = picture.getPixel(pixPos2[0], pixPos2[1]);
+
+                    int pix3Int = picture.getPixel(pixPos3[0], pixPos3[1]);
+
+                    Color pix1Color = new Color();
+
+                    int alpha1 = pix1Color.alpha(pix1Int);
+
+                    int red1 = pix1Color.red(pix1Int);
+
+                    int green1 = pix1Color.green(pix1Int);
+
+                    int blue1 = pix1Color.blue(pix1Int);
+
+                    Color pix2Color = new Color();
+
+                    int alpha2 = pix2Color.alpha(pix2Int);
+
+                    int red2 = pix2Color.red(pix2Int);
+
+                    int green2 = pix2Color.green(pix2Int);
+
+                    int blue2 = pix2Color.blue(pix2Int);
+
+                    Color pix3Color = new Color();
+
+                    int alpha3 = pix3Color.alpha(pix3Int);
+
+                    int red3 = pix3Color.red(pix3Int);
+
+                    int green3 = pix3Color.green(pix3Int);
+
+                    int blue3 = pix3Color.blue(pix3Int);
+
+                    red1++;
+
+                    if (charAsciiBin[0] == 0 && (green1 % 2 != 0)) {
+
+                        green1--;
+
+                    } else if (charAsciiBin[0] == 1 && (green1 % 2 == 0)) {
+
+                        green1++;
+
+                    }
+
+                    if (charAsciiBin[1] == 0 && (blue1 % 2 != 0)) {
+
+                        blue1--;
+
+                    } else if (charAsciiBin[1] == 1 && (blue1 % 2 == 0)) {
+
+                        blue1++;
+
+                    }
+
+                    if (charAsciiBin[2] == 0 && (red2 % 2 != 0)) {
+
+                        red2--;
+
+                    } else if (charAsciiBin[2] == 1 && (red2 % 2 == 0)) {
+
+                        red2++;
+
+                    }
+
+                    if (charAsciiBin[3] == 0 && (green2 % 2 != 0)) {
+
+                        green2--;
+
+                    } else if (charAsciiBin[3] == 1 && (green2 % 2 == 0)) {
+
+                        green2++;
+
+                    }
+
+                    if (charAsciiBin[4] == 0 && (blue2 % 2 != 0)) {
+
+                        blue2--;
+
+                    } else if (charAsciiBin[4] == 1 && (blue2 % 2 == 0)) {
+
+                        blue2++;
+
+                    }
+
+                    if (charAsciiBin[5] == 0 && (red3 % 2 != 0)) {
+
+                        red3--;
+
+                    } else if (charAsciiBin[5] == 1 && (red3 % 2 == 0)) {
+
+                        red3++;
+
+                    }
+
+                    if (charAsciiBin[6] == 0 && (green3 % 2 != 0)) {
+
+                        green3--;
+
+                    } else if (charAsciiBin[6] == 1 && (green3 % 2 == 0)) {
+
+                        green3++;
+
+                    }
+
+                    if (charAsciiBin[6] == 0 && (blue3 % 2 != 0)) {
+
+                        blue3--;
+
+                    } else if (charAsciiBin[6] == 1 && (blue3 % 2 == 0)) {
+
+                        blue3++;
+
+                    }
+
+                    int outPicInt1 = pix1Color.argb(alpha1, red1, green1, blue1);
+
+                    int outPicInt2 = pix2Color.argb(alpha2, red2, green2, blue2);
+
+                    int outPicInt3 = pix2Color.argb(alpha3, red3, green3, blue3);
+
+                    outPicture.setPixel(pixPos1[0], pixPos1[1], outPicInt1);
+
+                    outPicture.setPixel(pixPos2[0], pixPos2[1], outPicInt2);
+
+                    outPicture.setPixel(pixPos3[0], pixPos3[1], outPicInt3);
 
                     col++;
 
-                    pixPos2[0] = row;
-
-                    pixPos2[1] = col;
-
-                    row++;
-
-                    col = 0;
-
-                    pixPos3[0] = row;
-
-                    pixPos3[1] = col;
-
-                } else {
-
-                    // No overflow
-
-                    col++;
-
-                    pixPos2[0] = row;
-
-                    pixPos2[1] = col;
-
-                    col++;
-
-                    pixPos3[0] = row;
-
-                    pixPos3[1] = col;
-
                 }
-
-                int[] charAsciiBin = getBits((int) message.charAt(messagePos));
-
-                int pix1Int = outPicture.getPixel(pixPos1[0], pixPos1[1]);
-
-                int pix2Int = outPicture.getPixel(pixPos2[0], pixPos2[1]);
-
-                int pix3Int = outPicture.getPixel(pixPos3[0], pixPos3[1]);
-
-                Color pix1Color = new Color();
-
-                int alpha1 = pix1Color.alpha(pix1Int);
-
-                int red1 = pix1Color.red(pix1Int);
-
-                int green1 = pix1Color.green(pix1Int);
-
-                int blue1 = pix1Color.blue(pix1Int);
-
-                Color pix2Color = new Color();
-
-                int alpha2 = pix2Color.alpha(pix2Int);
-
-                int red2 = pix2Color.red(pix2Int);
-
-                int green2 = pix2Color.green(pix2Int);
-
-                int blue2 = pix2Color.blue(pix2Int);
-
-                Color pix3Color = new Color();
-
-                int alpha3 = pix3Color.alpha(pix3Int);
-
-                int red3 = pix3Color.red(pix3Int);
-
-                int green3 = pix3Color.green(pix3Int);
-
-                int blue3 = pix3Color.blue(pix3Int);
-
-                red1++;
-
-                if (charAsciiBin[0] == 0 && (green1 % 2 != 0)) {
-
-                    green1--;
-
-                } else if (charAsciiBin[0] == 1 && (green1 % 2 == 0)) {
-
-                    green1++;
-
-                }
-
-                if (charAsciiBin[1] == 0 && (blue1 % 2 != 0)) {
-
-                    blue1--;
-
-                } else if (charAsciiBin[1] == 1 && (blue1 % 2 == 0)) {
-
-                    blue1++;
-
-                }
-
-                if (charAsciiBin[2] == 0 && (red2 % 2 != 0)) {
-
-                    red2--;
-
-                } else if (charAsciiBin[2] == 1 && (red2 % 2 == 0)) {
-
-                    red2++;
-
-                }
-
-                if (charAsciiBin[3] == 0 && (green2 % 2 != 0)) {
-
-                    green2--;
-
-                } else if (charAsciiBin[3] == 1 && (green2 % 2 == 0)) {
-
-                    green2++;
-
-                }
-
-                if (charAsciiBin[4] == 0 && (blue2 % 2 != 0)) {
-
-                    blue2--;
-
-                } else if (charAsciiBin[4] == 1 && (blue2 % 2 == 0)) {
-
-                    blue2++;
-
-                }
-
-                if (charAsciiBin[5] == 0 && (red3 % 2 != 0)) {
-
-                    red3--;
-
-                } else if (charAsciiBin[5] == 1 && (red3 % 2 == 0)) {
-
-                    red3++;
-
-                }
-
-                if (charAsciiBin[6] == 0 && (green3 % 2 != 0)) {
-
-                    green3--;
-
-                } else if (charAsciiBin[6] == 1 && (green3 % 2 == 0)) {
-
-                    green3++;
-
-                }
-
-                if (charAsciiBin[6] == 0 && (blue3 % 2 != 0)) {
-
-                    blue3--;
-
-                } else if (charAsciiBin[6] == 1 && (blue3 % 2 == 0)) {
-
-                    blue3++;
-
-                }
-
-                int outPicInt1 = pix1Color.argb(alpha1, red1, green1, blue1);
-
-                int outPicInt2 = pix2Color.argb(alpha2, red2, green2, blue2);
-
-                int outPicInt3 = pix2Color.argb(alpha3, red3, green3, blue3);
-
-                outPicture.setPixel(pixPos1[0], pixPos1[1], outPicInt1);
-
-                outPicture.setPixel(pixPos2[0], pixPos2[1], outPicInt2);
-
-                outPicture.setPixel(pixPos3[0], pixPos3[1], outPicInt3);
-
-                col++;
             }
 
             row++;
