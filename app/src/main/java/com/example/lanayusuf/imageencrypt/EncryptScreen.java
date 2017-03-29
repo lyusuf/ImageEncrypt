@@ -1,8 +1,18 @@
 package com.example.lanayusuf.imageencrypt;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
@@ -15,7 +25,14 @@ import android.widget.ImageView;
 public class EncryptScreen extends AppCompatActivity {
 
 
+    final private int REQUEST_WRITE_EXTERNAL_STORAGE = 123;
     PictureCoder pc = new PictureCoder();
+
+    ImageView imageView;
+    Drawable drawable;
+    Bitmap bitmap;
+    String imagePath;
+    Uri uri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +68,23 @@ public class EncryptScreen extends AppCompatActivity {
         {
             public void onClick(View v){
                 // save button has been pressed
+
+                // Check Version
+                // If Version is 23 or greater check that user has given application permission
+                if(Build.VERSION.SDK_INT >= 23){
+                    // Check that user has given application permission
+                    if(checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+                        // Application does not have permission
+                        // Request permission to access external storage
+                        requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},REQUEST_WRITE_EXTERNAL_STORAGE);
+                    }
+                }
+
+                drawable = getResources().getDrawable(R.drawable.security);
+                bitmap = ((BitmapDrawable)drawable).getBitmap();
+                // Insert image into Android Image Gallery
+                imagePath = MediaStore.Images.Media.insertImage(getContentResolver(),bitmap,"Security","Security");
+                uri = Uri.parse(imagePath);
                 pc.save();
             }
         });
