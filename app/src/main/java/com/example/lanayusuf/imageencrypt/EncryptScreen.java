@@ -1,5 +1,7 @@
 package com.example.lanayusuf.imageencrypt;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -49,6 +51,23 @@ public class EncryptScreen extends AppCompatActivity {
             public void onClick(View v){
                 // encode button has been pressed
                 pc.save(getApplicationContext());
+            }
+        });
+
+        final Button text = (Button) findViewById(R.id.text);
+        text.setOnClickListener(new View.OnClickListener()
+        {
+            public void onClick(View v){
+                // text image button has been pressed
+
+
+                //temp solution using image saved in resources
+                //to do: save encoded image, get path on sd card, parse path to get uri
+
+                Intent sendText = new Intent(Intent.ACTION_SEND);
+                sendText.putExtra(Intent.EXTRA_STREAM, Uri.parse("android.resource://com.example.lanayusuf.imageencrypt/drawable/security"));
+                sendText.setType("image/png");
+                startActivity(sendText);
             }
         });
 
