@@ -1,11 +1,23 @@
 package com.example.lanayusuf.imageencrypt;
 
+import android.Manifest;
+import android.app.Activity;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.os.Build;
+import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.pm.ActivityInfoCompat;
 import android.util.Log;
+import android.widget.ImageView;
 
 /**
  * Created by Master McCord on 2/19/2017.
@@ -391,7 +403,28 @@ public class PictureCoder {
         Log.d("tag", "decode was called");
     }
 
-    void save(){
+
+    void save(Context context){
+
+        ImageView imageView;
+        Drawable drawable;
+        Bitmap bitmap;
+        String imagePath;
+        Uri uri;
+
+        int REQUEST_WRITE_EXTERNAL_STORAGE = 123;
+
+        if(Build.VERSION.SDK_INT >= 23){
+            if(ContextCompat.checkSelfPermission(context.getApplicationContext(),Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+                ActivityCompat.requestPermissions((Activity) context.getApplicationContext(),new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},REQUEST_WRITE_EXTERNAL_STORAGE);
+            }
+        }
+
+        drawable = context.getResources().getDrawable(R.drawable.security);
+        bitmap = ((BitmapDrawable)drawable).getBitmap();
+        imagePath = MediaStore.Images.Media.insertImage(context.getContentResolver(),bitmap,"Security","Security");
+        uri = Uri.parse(imagePath);
+
 
         Log.d("tag", "save was called");
     }

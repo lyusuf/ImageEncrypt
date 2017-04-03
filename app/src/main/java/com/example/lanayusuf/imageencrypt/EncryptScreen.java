@@ -48,7 +48,7 @@ public class EncryptScreen extends AppCompatActivity {
         {
             public void onClick(View v){
                 // encode button has been pressed
-                pc.save();
+                pc.save(getApplicationContext());
             }
         });
 
