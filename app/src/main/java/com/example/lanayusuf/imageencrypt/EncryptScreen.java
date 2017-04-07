@@ -77,7 +77,7 @@ public class EncryptScreen extends AppCompatActivity {
                 // encode button has been pressed
 
                 // Check Android Version
-                // If Version is 23 or greater check that user has given application permission
+                // If Version is 23 or greater check that user has given application permissions
                 if(Build.VERSION.SDK_INT >= 23){
                     // Check that user has given application permission (Read External Storage)
                     if(checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
