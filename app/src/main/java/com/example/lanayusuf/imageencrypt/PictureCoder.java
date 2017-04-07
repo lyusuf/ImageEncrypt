@@ -206,6 +206,8 @@ public class PictureCoder {
 
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inScaled = false;
+        options.inMutable = true;
+        options.inPremultiplied = false;
         Bitmap picture = BitmapFactory.decodeResource(res, resId, options);
 
         int numRows = picture.getHeight();
@@ -222,11 +224,11 @@ public class PictureCoder {
 
         /* set up mutable Bitmap */
 
-        Bitmap outPicture = Bitmap.createBitmap(numCols, numRows, Bitmap.Config.ARGB_8888);
+//        Bitmap outPicture = picture.copy(Bitmap.Config.ARGB_8888, true);
 
         /* get message */
 
-        String message = "This is the message to encode";
+        String message = "This isn't the message to decode";
 
         /* "zero" out image */
 
@@ -249,7 +251,7 @@ public class PictureCoder {
                 }
 
                 picColorInt = Color.argb(alpha, red, green, blue);
-                outPicture.setPixel(i, j, picColorInt);
+                picture.setPixel(i, j, picColorInt);
 
             }
         }
@@ -273,8 +275,8 @@ public class PictureCoder {
                 if (messagePos >= message.length()) {
 
                     // TODO: fill in rest of pixels with original image pixels?
-                    int pixInt = picture.getPixel(row, col);
-                    outPicture.setPixel(row, col, pixInt);
+                    //int pixInt = picture.getPixel(row, col);
+                    //picture.setPixel(row, col, pixInt);
                     col++;
 
                 } else {
@@ -339,7 +341,7 @@ public class PictureCoder {
                     int[] charAsciiBin = getBits(charAscii);
                     messagePos++;
 
-                    encodeChar(outPicture, charAsciiBin, pixPos1, pixPos2, pixPos3);
+                    encodeChar(picture, charAsciiBin, pixPos1, pixPos2, pixPos3);
 
                     col++;
 
@@ -350,6 +352,8 @@ public class PictureCoder {
         }
 
         Log.d("tag", "encode had ended");
+
+        decode(ctx, picture);
     }
 
     /*
@@ -395,6 +399,16 @@ public class PictureCoder {
     }
 
     /*
+     * Checks to see if a character is stored in the current position.
+     */
+    private boolean charFlag(Bitmap picture, int[][] curPositions) {
+        // assumes the flag is set in the first pixel
+        int pix1Int = picture.getPixel(curPositions[0][0], curPositions[0][1]);
+        int red1 = Color.red(pix1Int);
+        return(red1 % 2 == 1);
+    }
+
+    /*
      * Gets the locations of the pixels in the next character
      * given the locations of the pixels in the current character
      * and the picture itself.
@@ -432,7 +446,7 @@ public class PictureCoder {
      * TODO: Randomize message placement
      *
      */
-    void decode(Context ctx){
+    void decode(Context ctx, Bitmap bmp){
         Log.d("tag", "decode was called");
 
         /* get picture */
@@ -443,6 +457,8 @@ public class PictureCoder {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inScaled = false;
         Bitmap picture = BitmapFactory.decodeResource(res, resId, options);
+
+        picture = bmp;
 
         int numRows = picture.getHeight();
         int numCols = picture.getWidth();
@@ -456,28 +472,28 @@ public class PictureCoder {
         Log.d("tag", Integer.toString(numPixels));
         Log.d("tag", Integer.toString(availableChars));
 
-        /* TODO: read header? */
-
-        int numChars = 29;
-
-        /* get initial character */
+        /* sets up the initial position */
 
         int[][] pixPositions = new int[][]{
                 {0, 0},
                 {0, 1},
                 {0, 2}
         };
-        String message = "" + decodeChar(picture, pixPositions);
+        boolean isChar = charFlag(picture, pixPositions);
 
         /* get remaining characters */
 
-        for (int messagePos = 1; messagePos < numChars; messagePos++) {
-            // get the locations of the pixels to decode
-            pixPositions = getNextPositions(picture, pixPositions);
-
+        String message = "";
+        while (isChar) {
             // decode pixels
             char curChar = decodeChar(picture, pixPositions);
             message += curChar;
+
+            // get the locations of the pixels to decode
+            pixPositions = getNextPositions(picture, pixPositions);
+
+            // check if a character is stored
+            isChar = charFlag(picture, pixPositions);
         }
         Log.d("tag", message);
 

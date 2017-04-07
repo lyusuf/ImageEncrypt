@@ -1,5 +1,8 @@
 package com.example.lanayusuf.imageencrypt;
 
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -40,7 +43,14 @@ public class EncryptScreen extends AppCompatActivity {
         {
             public void onClick(View v){
                 // encode button has been pressed
-                pc.decode(getApplicationContext());
+                Resources res = getResources();
+                int resId = R.drawable.security;
+
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inScaled = false;
+                Bitmap picture = BitmapFactory.decodeResource(res, resId, options);
+
+                pc.decode(getApplicationContext(), picture);
             }
         });
 
