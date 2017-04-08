@@ -125,12 +125,25 @@ public class EncryptScreen extends AppCompatActivity {
         {
             public void onClick(View v){
                 // text image button has been pressed
-                //temp solution using image saved in resources
-                //to do: save encoded image, get path on sd card, parse path to get uri
+
+                //send text
                 Intent sendText = new Intent(Intent.ACTION_SEND);
                 sendText.putExtra(Intent.EXTRA_STREAM, Uri.parse("SELECTED_IMAGE_URI"));
                 sendText.setType("image/png");
                 startActivity(sendText);
+
+                /*
+                //send email
+                Intent sendEmail = new Intent(Intent.ACTION_SEND);
+                sendEmail.setType("application/image");
+                sendEmail.putExtra(Intent.EXTRA_EMAIL, new String[]{"lanayusuf24@gmail.com"});
+                sendEmail.putExtra(Intent.EXTRA_SUBJECT,"Image Encrypt");
+                sendEmail.putExtra(Intent.EXTRA_TEXT, "Secret message in picture.");
+                //picture file needs to be stored in public location/external storage, not in storage that's private to the app
+                sendEmail.putExtra(Intent.EXTRA_STREAM, Uri.parse("android.resource://com.example.lanayusuf.imageencrypt/drawable/security"));
+                startActivity(sendEmail);
+                */
+
             }
         });
 
