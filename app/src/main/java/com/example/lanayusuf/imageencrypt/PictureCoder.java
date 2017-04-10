@@ -457,7 +457,7 @@ public class PictureCoder {
 
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inScaled = false;
-        Bitmap picture = BitmapFactory.decodeResource(res, resId, options);
+        Bitmap picture = BitmapFactory.decodeResource(res,resId,options);
 
         picture = bmp;
 
@@ -514,8 +514,6 @@ public class PictureCoder {
 //        bitmap = ((BitmapDrawable)drawable).getBitmap();
         imagePath = MediaStore.Images.Media.insertImage(context.getContentResolver(),bitmap,"Security","Security");
         uri = Uri.parse(imagePath);
-
-
         Log.d("tag", "save was called");
     }
 

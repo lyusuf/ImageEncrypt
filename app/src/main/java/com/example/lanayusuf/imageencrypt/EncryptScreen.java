@@ -1,6 +1,7 @@
 package com.example.lanayusuf.imageencrypt;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.Cursor;
@@ -33,8 +34,10 @@ public class EncryptScreen extends AppCompatActivity {
     private static int REQUEST_READ_EXTERNAL_STORAGE = 124;
     private static int SELECT_ENCODE_PHOTO = 1;
     private static int SELECT_DECODE_PHOTO = 2;
-    private static String SELECTED_IMAGE_URI = "";
-    private static Bitmap SELECTED_IMAGE_BITMAP = null;
+    private static String SELECTED_ENCODE_IMAGE_URI = "";
+    private static String SELECTED_DECODE_IMAGE_URI = "";
+    private static Bitmap SELECTED_ENCODE_IMAGE_BITMAP = null;
+    private static Bitmap SELECTED_DECODE_IMAGE_BITMAP = null;
 
 
     @Override
@@ -65,7 +68,7 @@ public class EncryptScreen extends AppCompatActivity {
 
                 Intent selectEncodeImage = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 startActivityForResult(selectEncodeImage,SELECT_ENCODE_PHOTO);
-                pc.encode(getApplicationContext(),SELECTED_IMAGE_BITMAP);
+                pc.encode(getApplicationContext(),SELECTED_ENCODE_IMAGE_BITMAP);
             }
         });
 
@@ -77,7 +80,7 @@ public class EncryptScreen extends AppCompatActivity {
                 // encode button has been pressed
 
                 // Check Android Version
-                // If Version is 23 or greater check that user has given application permissions
+                // If Version is 23 or greater check that user has given application permission
                 if(Build.VERSION.SDK_INT >= 23){
                     // Check that user has given application permission (Read External Storage)
                     if(checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
@@ -87,16 +90,16 @@ public class EncryptScreen extends AppCompatActivity {
                     }
                 }
 
-                Resources res = getResources();
-                int resId = R.drawable.security;
+//                Resources res = getResources();
+//                int resId = R.drawable.security;
+//
+//                BitmapFactory.Options options = new BitmapFactory.Options();
+//                options.inScaled = false;
+//                Bitmap picture = BitmapFactory.decodeResource(res, resId, options);
 
-                BitmapFactory.Options options = new BitmapFactory.Options();
-                options.inScaled = false;
-                Bitmap picture = BitmapFactory.decodeResource(res, resId, options);
-//                // Select image from gallery to decode
-//                Intent selectDecodeImage = new Intent(Intent.ACTION_PICK,MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-//                startActivityForResult(selectDecodeImage,SELECT_DECODE_PHOTO);
-                pc.decode(getApplicationContext(), picture);
+                Intent selectDecodeImage = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(selectDecodeImage,SELECT_DECODE_PHOTO);
+                pc.decode(getApplicationContext(), SELECTED_DECODE_IMAGE_BITMAP);
             }
         });
 
@@ -116,7 +119,7 @@ public class EncryptScreen extends AppCompatActivity {
                         requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},REQUEST_WRITE_EXTERNAL_STORAGE);
                     }
                 }
-                pc.save(getApplicationContext(),SELECTED_IMAGE_BITMAP);
+                pc.save(getApplicationContext(),SELECTED_ENCODE_IMAGE_BITMAP);
             }
         });
 
@@ -128,7 +131,7 @@ public class EncryptScreen extends AppCompatActivity {
                 //temp solution using image saved in resources
                 //to do: save encoded image, get path on sd card, parse path to get uri
                 Intent sendText = new Intent(Intent.ACTION_SEND);
-                sendText.putExtra(Intent.EXTRA_STREAM, Uri.parse("SELECTED_IMAGE_URI"));
+                sendText.putExtra(Intent.EXTRA_STREAM, Uri.parse(SELECTED_ENCODE_IMAGE_URI));
                 sendText.setType("image/png");
                 startActivity(sendText);
             }
@@ -139,13 +142,16 @@ public class EncryptScreen extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode,int resultCode, Intent data){
         super.onActivityResult(requestCode,resultCode,data);
-        if(requestCode == SELECT_ENCODE_PHOTO){
-            if(resultCode == RESULT_OK){
-                if(data != null) {
+        Bitmap bitmap = null;
+
+        // Call for selected image bitmap for ENCODE
+        if(requestCode == 1){
+            if(resultCode == Activity.RESULT_OK){
+                if(data != null){
                     Uri imageUriSelected = data.getData();
                     // Set image uri that will be used in text message feature
-                    SELECTED_IMAGE_URI = imageUriSelected.toString();
-                    Log.d("URI IMAGE",SELECTED_IMAGE_URI);
+                    SELECTED_ENCODE_IMAGE_URI = imageUriSelected.toString();
+                    Log.d("URI IMAGE",SELECTED_ENCODE_IMAGE_URI);
                     String[] filePathColumn = {MediaStore.Images.Media.DATA};
                     Cursor cursor = getContentResolver().query(imageUriSelected, filePathColumn, null, null, null);
                     cursor.moveToFirst();
@@ -154,15 +160,41 @@ public class EncryptScreen extends AppCompatActivity {
                     String picturePath = cursor.getString(columnIndex);
                     cursor.close();
 
-                    Bitmap bitmap = null;
                     try{
                         bitmap = getBitmapFromUri(imageUriSelected);
-                        SELECTED_IMAGE_BITMAP = bitmap;
+                        SELECTED_ENCODE_IMAGE_BITMAP = bitmap;
+                        Log.d("tag", "ENCODE BITMAP: " + SELECTED_ENCODE_IMAGE_BITMAP.toString());
                     }catch(IOException e){
                         e.printStackTrace();
                     }
-
                 }
+            }
+
+        }
+
+        // Call for selected image bitmap for DECODE
+        if(requestCode == 2){
+            if(resultCode == Activity.RESULT_OK){
+                Uri imageUriSelected = data.getData();
+                SELECTED_DECODE_IMAGE_URI = imageUriSelected.toString();
+                Log.d("URI DIMAGE", SELECTED_DECODE_IMAGE_URI);
+                String[] filePathColumn = {MediaStore.Images.Media.DATA};
+                Cursor cursor = getContentResolver().query(imageUriSelected,filePathColumn,null,null,null);
+                cursor.moveToFirst();
+
+                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                String picturePath = cursor.getString(columnIndex);
+                cursor.close();
+
+                try{
+                    bitmap = getBitmapFromUri(imageUriSelected);
+                    SELECTED_DECODE_IMAGE_BITMAP = bitmap;
+                    Log.d("tag", "DECODE BITMAP: " + SELECTED_DECODE_IMAGE_BITMAP.toString());
+                }catch(IOException e){
+                    e.printStackTrace();
+                }
+
+
             }
         }
     }
