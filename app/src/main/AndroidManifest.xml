@@ -9,10 +9,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <activity android:name=".StartScreen"
-            android:screenOrientation="portrait">
-        </activity>
-
         <activity android:name=".EncryptScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"
