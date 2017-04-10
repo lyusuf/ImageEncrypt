@@ -18,6 +18,11 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.pm.ActivityInfoCompat;
 import android.util.Log;
 import android.widget.ImageView;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.concurrent.ThreadLocalRandom;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -28,18 +33,6 @@ import java.io.FileOutputStream;
  */
 
 public class PictureCoder {
-
-    // Bitmap picture = BitmapFactory.decodeFile("app/src/main/res/drawable/security.png");
-
-    /*
-     * Potential parameters: picture (as filepath String or Bitmap object, Bitmap preferred)
-     *                       message (as String)
-     *
-     * Potential return: Bitmap or nothing (save Bitmap to PNG in function, return Bitmap preferred)
-     *
-     * TODO: Randomize message placement
-     *
-     */
 
     /*
      * Assumes ascii is in [0, 255].
@@ -78,39 +71,15 @@ public class PictureCoder {
     }
 
     /*
-     * Writes an image held as a Bitmap object
-     * to the specified file location filename.
-     *
-     */
-    public void writeImage(Bitmap image, String filename) {
-        FileOutputStream out = null;
-        try {
-            File outFilename = new File(filename); // this part needs fixed
-            out = new FileOutputStream(filename);
-            image.compress(Bitmap.CompressFormat.PNG, 100, out);
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (out != null) {
-                    out.close();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    /*
      * Encodes the character in the picture given the mutable Bitmap picture,
      * the character as a binary array, and the positions of the pixels to modify.
      */
     private void encodeChar(Bitmap outPicture, int[] charAsciiBin, int[] pixPos1, int[] pixPos2,
-                           int[] pixPos3) {
+                            int[] pixPos3) {
 
-        int pix1Int = outPicture.getPixel(pixPos1[0], pixPos1[1]); // TODO: picture?
-        int pix2Int = outPicture.getPixel(pixPos2[0], pixPos2[1]); // TODO: picture?
-        int pix3Int = outPicture.getPixel(pixPos3[0], pixPos3[1]); // TODO: picture?
+        int pix1Int = outPicture.getPixel(pixPos1[0], pixPos1[1]);
+        int pix2Int = outPicture.getPixel(pixPos2[0], pixPos2[1]);
+        int pix3Int = outPicture.getPixel(pixPos3[0], pixPos3[1]);
 
         int alpha1 = Color.alpha(pix1Int);
         int red1 = Color.red(pix1Int);
@@ -195,11 +164,18 @@ public class PictureCoder {
 
     }
 
-    void encode(Context ctx, Bitmap bitmap){
+    /*
+     * Potential parameters: picture (as filepath String or Bitmap object, Bitmap preferred)
+     *                       message (as String)
+     *
+     * Potential return: Bitmap or nothing (save Bitmap to PNG in function, return Bitmap preferred)
+     *
+     */
+    void encode(Context ctx, Bitmap bmp){
 
         Log.d("tag", "encode was called");
 
-        /* get picture */
+        // get picture
 
         Resources res = ctx.getResources();
         int resId = R.drawable.security;
@@ -214,25 +190,23 @@ public class PictureCoder {
         int numCols = picture.getWidth();
         int numPixels = numRows * numCols;
 
+        int maxRange = numPixels - 3;
+
         int pixelsPerChar = 3;
         int availableChars = numPixels / pixelsPerChar;
 
-        Log.d("tag", Integer.toString(numRows));
-        Log.d("tag", Integer.toString(numCols));
-        Log.d("tag", Integer.toString(numPixels));
-        Log.d("tag", Integer.toString(availableChars));
+        Log.d("number of rows", Integer.toString(numRows));
+        Log.d("number of cols", Integer.toString(numCols));
+        Log.d("number of pixels", Integer.toString(numPixels));
+        Log.d("maximum characters", Integer.toString(availableChars));
 
-        /* set up mutable Bitmap */
-
-//        Bitmap outPicture = picture.copy(Bitmap.Config.ARGB_8888, true);
-
-        /* get message */
+        // get message
 
         String message = "This isn't the message to decode";
 
-        /* "zero" out image */
+        // "zero" out image
 
-       for (int i = 0; i < numRows; i++) {
+        for (int i = 0; i < numRows; i++) {
             for (int j = 0; j < numCols; j++) {
 
                 int picColorInt = picture.getPixel(i, j);
@@ -241,11 +215,7 @@ public class PictureCoder {
                 int green = Color.green(picColorInt);
                 int blue = Color.blue(picColorInt);
 
-                /*
-                 * This floors the red value for every pixel to be even.
-                 * Do we want to only floor the red values for the beginning
-                 * of character pixels? (i.e. every 3 pixels)
-                 */
+                // This floors the red value for every pixel to be even
                 if (red%2 != 0) {
                     red -= 1;
                 }
@@ -256,105 +226,63 @@ public class PictureCoder {
             }
         }
 
-//        /* write "zero" image */
-//
-//        String outFileLocation = "/users/iowner/StudioProjects/securityZero.png";
-//        writeImage(outPicture, outFileLocation);
+        // encode message
 
-        /* encode message */
+        SortedSet<Integer> pixelsUsed = new TreeSet<>();
 
-        int messagePos = 0;
-        int row = 0;
+        // Need to make sure pixels don't overlap
 
-        while (row < numRows) {
+        Set<Integer> exclusions = new HashSet<>();
 
-            int col = 0;
+        while (pixelsUsed.size() < message.length()) {
 
-            while (col < numCols) {
+            int randPix = ThreadLocalRandom.current().nextInt(0, maxRange + 1);
 
-                if (messagePos >= message.length()) {
+            if (exclusions.add(randPix)) {
 
-                    // TODO: fill in rest of pixels with original image pixels?
-                    //int pixInt = picture.getPixel(row, col);
-                    //picture.setPixel(row, col, pixInt);
-                    col++;
+                exclusions.add(randPix-1);
+                exclusions.add(randPix-2);
+                exclusions.add(randPix+1);
+                exclusions.add(randPix+2);
 
-                } else {
+                pixelsUsed.add(randPix);
 
-                    // Keep track of the position of the pixels encoding the character
-                    int[] pixPos1 = {row, col};
-                    int[] pixPos2 = {-1, -1};
-                    int[] pixPos3 = {-1, -1};
-
-                    // TODO: It's possible row will exceed numRow.
-                    if (col + 1 == numCols) {
-
-                        // Both pixels overflow
-                        row++;
-                        col = 0;
-                        pixPos2[0] = row;
-                        pixPos2[1] = col;
-
-                        if (col + 1 == numCols) {
-
-                            row++;
-                            col = 0;
-                            pixPos3[0] = row;
-                            pixPos3[1] = col;
-
-                        } else {
-
-                            col++;
-                            pixPos3[0] = row;
-                            pixPos3[1] = col;
-
-                        }
-
-
-                    } else if (col + 2 == numCols) {
-
-                        // Only 1 pixel overflows
-                        col++;
-                        pixPos2[0] = row;
-                        pixPos2[1] = col;
-
-                        row++;
-                        col = 0;
-                        pixPos3[0] = row;
-                        pixPos3[1] = col;
-
-                    } else {
-
-                        // No overflow
-
-                        col++;
-                        pixPos2[0] = row;
-                        pixPos2[1] = col;
-
-                        col++;
-                        pixPos3[0] = row;
-                        pixPos3[1] = col;
-
-                    }
-
-                    int charAscii = (int) message.charAt(messagePos);
-                    int[] charAsciiBin = getBits(charAscii);
-                    messagePos++;
-
-                    encodeChar(picture, charAsciiBin, pixPos1, pixPos2, pixPos3);
-
-                    col++;
-
-                }
             }
 
-            row++;
+        }
+
+        for (int s : pixelsUsed) {
+
+            Log.d("pixel positions encoded", Integer.toString(s));
+
+        }
+
+        int i = 0;
+
+        while (pixelsUsed.size() > 0) {
+
+            int pixelToSet = pixelsUsed.first();
+
+            pixelsUsed.remove(pixelToSet);
+
+            int charAscii = (int) message.charAt(i);
+            int[] charAsciiBin = getBits(charAscii);
+
+            int[] pixPos1 = {(pixelToSet/numCols), pixelToSet%numCols};
+
+            int[] pixPos2 = {((pixelToSet+1)/numCols), (pixelToSet+1)%numCols};
+
+            int[] pixPos3 = {((pixelToSet+2)/numCols), (pixelToSet+2)%numCols};
+
+            encodeChar(picture, charAsciiBin, pixPos1, pixPos2, pixPos3);
+
+            i++;
+
         }
 
         Log.d("tag", "encode had ended");
 
-        //save(ctx,picture);
-        //decode(ctx, picture);
+        // decode(ctx, picture);
     }
 
     /*
@@ -368,17 +296,13 @@ public class PictureCoder {
         int pix2Int = picture.getPixel(curPositions[1][0], curPositions[1][1]);
         int pix3Int = picture.getPixel(curPositions[2][0], curPositions[2][1]);
 
-        int alpha1 = Color.alpha(pix1Int);
-        int red1 = Color.red(pix1Int);
         int green1 = Color.green(pix1Int);
         int blue1 = Color.blue(pix1Int);
 
-        int alpha2 = Color.alpha(pix2Int);
         int red2 = Color.red(pix2Int);
         int green2 = Color.green(pix2Int);
         int blue2 = Color.blue(pix2Int);
 
-        int alpha3 = Color.alpha(pix3Int);
         int red3 = Color.red(pix3Int);
         int green3 = Color.green(pix3Int);
         int blue3 = Color.blue(pix3Int);
@@ -410,96 +334,64 @@ public class PictureCoder {
     }
 
     /*
-     * Gets the locations of the pixels in the next character
-     * given the locations of the pixels in the current character
-     * and the picture itself.
-     */
-    private int[][] getNextPositions(Bitmap picture, int[][] curPositions) {
-        int numRows = picture.getHeight();
-        int numCols = picture.getWidth();
-        int pixelsPerChar = curPositions.length;
-
-        // get location of the last pixel in the current character
-        int row = curPositions[pixelsPerChar - 1][0];
-        int col = curPositions[pixelsPerChar - 1][1];
-
-        // set the position each pixel in the next character
-        int[][] nextPositions = new int[pixelsPerChar][2];
-        for (int pixel = 0; pixel < pixelsPerChar; pixel++) {
-            // the location of the next pixel is directly after the current pixel
-            col++;
-            if (col == numCols) {
-                row++; // TODO: It's possible row will exceed numRow.
-                col = 0;
-            }
-
-            nextPositions[pixel][0] = row;
-            nextPositions[pixel][1] = col;
-        }
-
-        return(nextPositions);
-    }
-
-    /*
      * Potential parameters: picture (as filepath String or Bitmap object, Bitmap preferred)
-     * Potential return: message (as String)
-     *
-     * TODO: Randomize message placement
+     * Return: message (as String)
      *
      */
     void decode(Context ctx, Bitmap bmp){
         Log.d("tag", "decode was called");
 
-        /* get picture */
+        // get picture
 
         Resources res = ctx.getResources();
         int resId = R.drawable.security;
 
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inScaled = false;
-        Bitmap picture = BitmapFactory.decodeResource(res,resId,options);
-
-        picture = bmp;
+        Bitmap picture = BitmapFactory.decodeResource(res, resId, options);
+        picture = bmp; /* TODO: remove this line once the right image is imported */
 
         int numRows = picture.getHeight();
         int numCols = picture.getWidth();
         int numPixels = numRows * numCols;
 
+        Log.d("number of rows", Integer.toString(numRows));
+        Log.d("number of cols", Integer.toString(numCols));
+        Log.d("number of pixels", Integer.toString(numPixels));
+
+        // sets up the pixPositions matrix
+
         int pixelsPerChar = 3;
-        int availableChars = numPixels / pixelsPerChar;
+        int[][] pixPositions = new int[pixelsPerChar][2];
 
-        Log.d("tag", Integer.toString(numRows));
-        Log.d("tag", Integer.toString(numCols));
-        Log.d("tag", Integer.toString(numPixels));
-        Log.d("tag", Integer.toString(availableChars));
-
-        /* sets up the initial position */
-
-        int[][] pixPositions = new int[][]{
-                {0, 0},
-                {0, 1},
-                {0, 2}
-        };
-        boolean isChar = charFlag(picture, pixPositions);
-
-        /* get remaining characters */
+        // loops through positions in the image
 
         String message = "";
-        while (isChar) {
-            // decode pixels
-            char curChar = decodeChar(picture, pixPositions);
-            message += curChar;
+        int pixelToCheck = 0;
+        while (pixelToCheck <= numPixels - pixelsPerChar) {
+            pixPositions[0][0] = pixelToCheck / numCols;
+            pixPositions[0][1] = pixelToCheck % numCols;
 
-            // get the locations of the pixels to decode
-            pixPositions = getNextPositions(picture, pixPositions);
+            pixPositions[1][0] = (pixelToCheck + 1) / numCols;
+            pixPositions[1][1] = (pixelToCheck + 1) % numCols;
 
-            // check if a character is stored
-            isChar = charFlag(picture, pixPositions);
+            pixPositions[2][0] = (pixelToCheck + 2) / numCols;
+            pixPositions[2][1] = (pixelToCheck + 2) % numCols;
+
+            if (charFlag(picture, pixPositions)) {
+                char curChar = decodeChar(picture, pixPositions);
+                message += curChar;
+
+                pixelToCheck += pixelsPerChar;
+            } else {
+                pixelToCheck += 1;
+            }
         }
-        Log.d("tag", message);
+        Log.d("decoded message", message);
 
         Log.d("tag", "decode has ended");
     }
+
 
 
     void save(Context context,Bitmap bitmap){
