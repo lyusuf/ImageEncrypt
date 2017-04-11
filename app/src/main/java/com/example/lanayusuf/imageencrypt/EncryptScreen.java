@@ -3,7 +3,6 @@ package com.example.lanayusuf.imageencrypt;
 import android.Manifest;
 import android.app.Activity;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -17,14 +16,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
+import android.widget.EditText;
 
 import java.io.FileDescriptor;
 import java.io.IOException;
 
-/**
- * Created by LanaYusuf on 2/7/2017.
- */
 
 public class EncryptScreen extends AppCompatActivity {
 
@@ -48,6 +44,9 @@ public class EncryptScreen extends AppCompatActivity {
         View img = findViewById(R.id.picture);
         img.setBackgroundResource(R.drawable.security);
 
+        final EditText encodedMessage = (EditText) findViewById(R.id.encodeEditText);
+        final EditText decodedMessage = (EditText) findViewById(R.id.decodeMessageEditText);
+
 
         final Button encode = (Button) findViewById(R.id.encode);
         encode.setOnClickListener(new View.OnClickListener()
@@ -68,7 +67,7 @@ public class EncryptScreen extends AppCompatActivity {
 
                 Intent selectEncodeImage = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 startActivityForResult(selectEncodeImage,SELECT_ENCODE_PHOTO);
-                pc.encode(getApplicationContext(),SELECTED_ENCODE_IMAGE_BITMAP);
+                pc.encode(getApplicationContext(),SELECTED_ENCODE_IMAGE_BITMAP, encodedMessage.getText().toString());
             }
         });
 
@@ -99,7 +98,8 @@ public class EncryptScreen extends AppCompatActivity {
 
                 Intent selectDecodeImage = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 startActivityForResult(selectDecodeImage,SELECT_DECODE_PHOTO);
-                pc.decode(getApplicationContext(), SELECTED_DECODE_IMAGE_BITMAP);
+                String message = pc.decode(getApplicationContext(), SELECTED_DECODE_IMAGE_BITMAP);
+                decodedMessage.setText(message);
             }
         });
 
@@ -119,7 +119,7 @@ public class EncryptScreen extends AppCompatActivity {
                         requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},REQUEST_WRITE_EXTERNAL_STORAGE);
                     }
                 }
-                pc.save(getApplicationContext(),SELECTED_ENCODE_IMAGE_BITMAP);
+                pc.save();
             }
         });
 
@@ -131,21 +131,27 @@ public class EncryptScreen extends AppCompatActivity {
 
                 //send text
                 Intent sendText = new Intent(Intent.ACTION_SEND);
-                sendText.putExtra(Intent.EXTRA_STREAM, Uri.parse(SELECTED_ENCODE_IMAGE_URI));
+                sendText.putExtra(Intent.EXTRA_STREAM, Uri.parse("android.resource://com.example.lanayusuf.imageencrypt/drawable/security"));
                 sendText.setType("image/png");
                 startActivity(sendText);
+            }
+        });
 
-                /*
+        final Button email = (Button) findViewById(R.id.email);
+        email.setOnClickListener(new View.OnClickListener()
+        {
+            public void onClick(View v){
+                // email image button has been pressed
+
                 //send email
                 Intent sendEmail = new Intent(Intent.ACTION_SEND);
                 sendEmail.setType("application/image");
                 sendEmail.putExtra(Intent.EXTRA_EMAIL, new String[]{"lanayusuf24@gmail.com"});
                 sendEmail.putExtra(Intent.EXTRA_SUBJECT,"Image Encrypt");
                 sendEmail.putExtra(Intent.EXTRA_TEXT, "Secret message in picture.");
-                //picture file needs to be stored in public location/external storage, not in storage that's private to the app
                 sendEmail.putExtra(Intent.EXTRA_STREAM, Uri.parse("android.resource://com.example.lanayusuf.imageencrypt/drawable/security"));
                 startActivity(sendEmail);
-                */
+
 
             }
         });

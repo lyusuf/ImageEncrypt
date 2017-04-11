@@ -1,21 +1,12 @@
 package com.example.lanayusuf.imageencrypt;
 
-import android.Manifest;
-import android.app.Activity;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Build;
-import android.provider.MediaStore;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.pm.ActivityInfoCompat;
 import android.util.Log;
 import android.widget.ImageView;
 import java.util.SortedSet;
@@ -24,17 +15,7 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.concurrent.ThreadLocalRandom;
 
-import java.io.File;
-import java.io.FileOutputStream;
-
-/**
- * Created by Master McCord on 2/19/2017.
- * Changes made by the Data Analytics Major on 3/11/2017.
- */
-
 public class PictureCoder {
-
-
 
     /*
      * Assumes ascii is in [0, 255].
@@ -173,7 +154,7 @@ public class PictureCoder {
      * Potential return: Bitmap or nothing (save Bitmap to PNG in function, return Bitmap preferred)
      *
      */
-    void encode(Context ctx, Bitmap bmp){
+    void encode(Context ctx, Bitmap bmp, String message){
 
         Log.d("tag", "encode was called");
 
@@ -204,7 +185,7 @@ public class PictureCoder {
 
         // get message
 
-        String message = "This isn't the message to decode";
+        //String message = "This isn't the message to decode";
 
         // "zero" out image
 
@@ -342,7 +323,7 @@ public class PictureCoder {
      * Return: message (as String)
      *
      */
-    void decode(Context ctx, Bitmap bmp){
+    String decode(Context ctx, Bitmap bmp){
         Log.d("tag", "decode was called");
 
         // get picture
@@ -394,6 +375,8 @@ public class PictureCoder {
         Log.d("decoded message", message);
 
         Log.d("tag", "decode has ended");
+
+        return message;
     }
 
 
