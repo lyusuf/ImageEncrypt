@@ -34,6 +34,8 @@ import java.io.FileOutputStream;
 
 public class PictureCoder {
 
+
+
     /*
      * Assumes ascii is in [0, 255].
      * Returns the binary representation of the integer as an array of ints.
@@ -220,6 +222,8 @@ public class PictureCoder {
                     red -= 1;
                 }
 
+
+
                 picColorInt = Color.argb(alpha, red, green, blue);
                 picture.setPixel(i, j, picColorInt);
 
@@ -349,7 +353,7 @@ public class PictureCoder {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inScaled = false;
         Bitmap picture = BitmapFactory.decodeResource(res, resId, options);
-        picture = bmp; /* TODO: remove this line once the right image is imported */
+        //picture = bmp; /* TODO: remove this line once the right image is imported */
 
         int numRows = picture.getHeight();
         int numCols = picture.getWidth();
@@ -394,7 +398,7 @@ public class PictureCoder {
 
 
 
-    void save(Context context,Bitmap bitmap){
+    void save(){
 
         ImageView imageView;
         Drawable drawable;
@@ -404,8 +408,8 @@ public class PictureCoder {
 
 //        drawable = context.getResources().getDrawable(R.drawable.security);
 //        bitmap = ((BitmapDrawable)drawable).getBitmap();
-        imagePath = MediaStore.Images.Media.insertImage(context.getContentResolver(),bitmap,"Security","Security");
-        uri = Uri.parse(imagePath);
+        //imagePath = MediaStore.Images.Media.insertImage(context.getContentResolver(),bitmap,"Security","Security");
+        //uri = Uri.parse(imagePath);
         Log.d("tag", "save was called");
     }
 
