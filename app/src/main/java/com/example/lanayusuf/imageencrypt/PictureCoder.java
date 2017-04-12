@@ -168,6 +168,7 @@ public class PictureCoder {
         options.inMutable = true;
         options.inPremultiplied = false;
         Bitmap picture = BitmapFactory.decodeResource(res, resId, options);
+        //picture = bmp; /* TODO: uncomment this line once the right image is imported */
 
         int numRows = picture.getHeight();
         int numCols = picture.getWidth();
@@ -334,7 +335,7 @@ public class PictureCoder {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inScaled = false;
         Bitmap picture = BitmapFactory.decodeResource(res, resId, options);
-        //picture = bmp; /* TODO: remove this line once the right image is imported */
+        //picture = bmp; /* TODO: uncomment this line once the right image is imported */
 
         int numRows = picture.getHeight();
         int numCols = picture.getWidth();
