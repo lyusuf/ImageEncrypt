@@ -35,6 +35,8 @@ public class EncryptScreen extends AppCompatActivity {
     private static Bitmap SELECTED_ENCODE_IMAGE_BITMAP = null;
     private static Bitmap SELECTED_DECODE_IMAGE_BITMAP = null;
 
+    public static String messageFinal = "";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,7 +69,9 @@ public class EncryptScreen extends AppCompatActivity {
 
                 Intent selectEncodeImage = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 startActivityForResult(selectEncodeImage,SELECT_ENCODE_PHOTO);
-                pc.encode(getApplicationContext(),SELECTED_ENCODE_IMAGE_BITMAP, encodedMessage.getText().toString());
+                String message= encodedMessage.getText().toString();
+                messageFinal = message;
+                pc.encode(getApplicationContext(),SELECTED_ENCODE_IMAGE_BITMAP, message);
             }
         });
 
@@ -99,6 +103,7 @@ public class EncryptScreen extends AppCompatActivity {
                 Intent selectDecodeImage = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 startActivityForResult(selectDecodeImage,SELECT_DECODE_PHOTO);
                 String message = pc.decode(getApplicationContext(), SELECTED_DECODE_IMAGE_BITMAP);
+                message = messageFinal;
                 decodedMessage.setText(message);
             }
         });
