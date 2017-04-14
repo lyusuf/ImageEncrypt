@@ -71,7 +71,7 @@ public class EncryptScreen extends AppCompatActivity {
                 startActivityForResult(selectEncodeImage,SELECT_ENCODE_PHOTO);
                 String message= encodedMessage.getText().toString();
                 messageFinal = message;
-                pc.encode(getApplicationContext(),SELECTED_ENCODE_IMAGE_BITMAP, message);
+                // pc.encode(getApplicationContext(),SELECTED_ENCODE_IMAGE_BITMAP, message);
             }
         });
 
@@ -102,9 +102,9 @@ public class EncryptScreen extends AppCompatActivity {
 
                 Intent selectDecodeImage = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 startActivityForResult(selectDecodeImage,SELECT_DECODE_PHOTO);
-                String message = pc.decode(getApplicationContext(), SELECTED_DECODE_IMAGE_BITMAP);
-                message = messageFinal;
-                decodedMessage.setText(message);
+                //String message = pc.decode(getApplicationContext(), SELECTED_DECODE_IMAGE_BITMAP);
+                //message = messageFinal;
+                //decodedMessage.setText(message);
             }
         });
 
@@ -124,7 +124,7 @@ public class EncryptScreen extends AppCompatActivity {
                         requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},REQUEST_WRITE_EXTERNAL_STORAGE);
                     }
                 }
-                pc.save();
+                //pc.save();
             }
         });
 
@@ -188,6 +188,12 @@ public class EncryptScreen extends AppCompatActivity {
                         bitmap = getBitmapFromUri(imageUriSelected);
                         SELECTED_ENCODE_IMAGE_BITMAP = bitmap;
                         Log.d("tag", "ENCODE BITMAP: " + SELECTED_ENCODE_IMAGE_BITMAP.toString());
+
+                        final EditText encodedMessage = (EditText) findViewById(R.id.encodeEditText);
+                        String message = encodedMessage.getText().toString();
+                        messageFinal = message;
+
+                        pc.encode(getApplicationContext(), bitmap, message);
                     }catch(IOException e){
                         e.printStackTrace();
                     }
@@ -214,6 +220,10 @@ public class EncryptScreen extends AppCompatActivity {
                     bitmap = getBitmapFromUri(imageUriSelected);
                     SELECTED_DECODE_IMAGE_BITMAP = bitmap;
                     Log.d("tag", "DECODE BITMAP: " + SELECTED_DECODE_IMAGE_BITMAP.toString());
+
+                    final EditText decodedMessage = (EditText) findViewById(R.id.decodeMessageEditText);
+                    String message = pc.decode(getApplicationContext(), SELECTED_DECODE_IMAGE_BITMAP);
+                    decodedMessage.setText(message);
                 }catch(IOException e){
                     e.printStackTrace();
                 }

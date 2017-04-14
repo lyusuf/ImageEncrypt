@@ -14,6 +14,7 @@ import java.util.TreeSet;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.concurrent.ThreadLocalRandom;
+import android.provider.MediaStore;
 
 public class PictureCoder {
 
@@ -60,9 +61,9 @@ public class PictureCoder {
     private void encodeChar(Bitmap outPicture, int[] charAsciiBin, int[] pixPos1, int[] pixPos2,
                             int[] pixPos3) {
 
-        int pix1Int = outPicture.getPixel(pixPos1[0], pixPos1[1]);
-        int pix2Int = outPicture.getPixel(pixPos2[0], pixPos2[1]);
-        int pix3Int = outPicture.getPixel(pixPos3[0], pixPos3[1]);
+        int pix1Int = outPicture.getPixel(pixPos1[1], pixPos1[0]);
+        int pix2Int = outPicture.getPixel(pixPos2[1], pixPos2[0]);
+        int pix3Int = outPicture.getPixel(pixPos3[1], pixPos3[0]);
 
         int alpha1 = Color.alpha(pix1Int);
         int red1 = Color.red(pix1Int);
@@ -141,9 +142,9 @@ public class PictureCoder {
         int outPicInt2 = Color.argb(alpha2, red2, green2, blue2);
         int outPicInt3 = Color.argb(alpha3, red3, green3, blue3);
 
-        outPicture.setPixel(pixPos1[0], pixPos1[1], outPicInt1);
-        outPicture.setPixel(pixPos2[0], pixPos2[1], outPicInt2);
-        outPicture.setPixel(pixPos3[0], pixPos3[1], outPicInt3);
+        outPicture.setPixel(pixPos1[1], pixPos1[0], outPicInt1);
+        outPicture.setPixel(pixPos2[1], pixPos2[0], outPicInt2);
+        outPicture.setPixel(pixPos3[1], pixPos3[0], outPicInt3);
 
     }
 
@@ -168,7 +169,8 @@ public class PictureCoder {
         options.inMutable = true;
         options.inPremultiplied = false;
         Bitmap picture = BitmapFactory.decodeResource(res, resId, options);
-        //picture = bmp; /* TODO: uncomment this line once the right image is imported */
+        //picture = bmp;
+        picture = bmp.copy(Bitmap.Config.ARGB_8888, true); // copy bmp into new bitmap
 
         int numRows = picture.getHeight();
         int numCols = picture.getWidth();
@@ -190,24 +192,25 @@ public class PictureCoder {
 
         // "zero" out image
 
-        for (int i = 0; i < numRows; i++) {
-            for (int j = 0; j < numCols; j++) {
+        for (int y = 0; y < numRows; y++) {
+            for (int x = 0; x < numCols; x++) {
 
-                int picColorInt = picture.getPixel(i, j);
+                int picColorInt = picture.getPixel(x, y);
+
                 int alpha = Color.alpha(picColorInt);
+
                 int red = Color.red(picColorInt);
                 int green = Color.green(picColorInt);
                 int blue = Color.blue(picColorInt);
 
                 // This floors the red value for every pixel to be even
-                if (red%2 != 0) {
+                if (red % 2 != 0) {
                     red -= 1;
                 }
 
-
-
                 picColorInt = Color.argb(alpha, red, green, blue);
-                picture.setPixel(i, j, picColorInt);
+
+                picture.setPixel(x, y, picColorInt);
 
             }
         }
@@ -266,9 +269,11 @@ public class PictureCoder {
 
         }
 
+        save(ctx, picture);
+
         Log.d("tag", "encode had ended");
 
-        // decode(ctx, picture);
+        //decode(ctx, picture);
     }
 
     /*
@@ -278,9 +283,9 @@ public class PictureCoder {
     private char decodeChar(Bitmap picture, int[][] curPositions) {
 
         // assumes the character is stored in the first 3 pixels
-        int pix1Int = picture.getPixel(curPositions[0][0], curPositions[0][1]);
-        int pix2Int = picture.getPixel(curPositions[1][0], curPositions[1][1]);
-        int pix3Int = picture.getPixel(curPositions[2][0], curPositions[2][1]);
+        int pix1Int = picture.getPixel(curPositions[0][1], curPositions[0][0]);
+        int pix2Int = picture.getPixel(curPositions[1][1], curPositions[1][0]);
+        int pix3Int = picture.getPixel(curPositions[2][1], curPositions[2][0]);
 
         int green1 = Color.green(pix1Int);
         int blue1 = Color.blue(pix1Int);
@@ -314,7 +319,7 @@ public class PictureCoder {
      */
     private boolean charFlag(Bitmap picture, int[][] curPositions) {
         // assumes the flag is set in the first pixel
-        int pix1Int = picture.getPixel(curPositions[0][0], curPositions[0][1]);
+        int pix1Int = picture.getPixel(curPositions[0][1], curPositions[0][0]);
         int red1 = Color.red(pix1Int);
         return(red1 % 2 == 1);
     }
@@ -335,7 +340,8 @@ public class PictureCoder {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inScaled = false;
         Bitmap picture = BitmapFactory.decodeResource(res, resId, options);
-        //picture = bmp; /* TODO: uncomment this line once the right image is imported */
+        //picture = bmp;
+        picture = bmp.copy(Bitmap.Config.ARGB_8888, true);  // copy bmp into new bitmap
 
         int numRows = picture.getHeight();
         int numCols = picture.getWidth();
@@ -382,7 +388,7 @@ public class PictureCoder {
 
 
 
-    void save(){
+    void save(Context context, Bitmap bitmap){
 
         ImageView imageView;
         Drawable drawable;
@@ -392,8 +398,8 @@ public class PictureCoder {
 
 //        drawable = context.getResources().getDrawable(R.drawable.security);
 //        bitmap = ((BitmapDrawable)drawable).getBitmap();
-        //imagePath = MediaStore.Images.Media.insertImage(context.getContentResolver(),bitmap,"Security","Security");
-        //uri = Uri.parse(imagePath);
+        imagePath = MediaStore.Images.Media.insertImage(context.getContentResolver(),bitmap,"Security","Security");
+        uri = Uri.parse(imagePath);
         Log.d("tag", "save was called");
     }
 
