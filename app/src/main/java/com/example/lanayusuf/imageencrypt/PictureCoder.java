@@ -1,20 +1,22 @@
 package com.example.lanayusuf.imageencrypt;
 
+import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.content.Context;
-import android.content.res.Resources;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
-import android.widget.ImageView;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.Set;
-import java.util.HashSet;
 import java.util.concurrent.ThreadLocalRandom;
-import android.provider.MediaStore;
 
 public class PictureCoder {
 
@@ -389,17 +391,27 @@ public class PictureCoder {
 
 
     void save(Context context, Bitmap bitmap){
+        String fullPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/ImageEncrypt";
 
-        ImageView imageView;
-        Drawable drawable;
-        String imagePath;
-        Uri uri;
+        try{
+            File dir = new File(fullPath);
+            if(!dir.exists()){
+                dir.mkdirs();
+            }
 
+            File file = new File(fullPath,"imageEncrypt.png");
+            file.createNewFile();
+            OutputStream fileOut = new FileOutputStream(file);
 
-//        drawable = context.getResources().getDrawable(R.drawable.security);
-//        bitmap = ((BitmapDrawable)drawable).getBitmap();
-        imagePath = MediaStore.Images.Media.insertImage(context.getContentResolver(),bitmap,"Security","Security");
-        uri = Uri.parse(imagePath);
+            // 100 - means no compression
+            bitmap.compress(Bitmap.CompressFormat.PNG,100, fileOut);
+            fileOut.flush();
+            fileOut.close();
+
+            MediaStore.Images.Media.insertImage(context.getContentResolver(),file.getAbsolutePath(),file.getName(),file.getName());
+        } catch(Exception e){
+            e.printStackTrace();
+        }
         Log.d("tag", "save was called");
     }
 
