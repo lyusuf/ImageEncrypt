@@ -35,9 +35,6 @@ public class EncryptScreen extends AppCompatActivity {
     private static Bitmap SELECTED_ENCODE_IMAGE_BITMAP = null;
     private static Bitmap SELECTED_DECODE_IMAGE_BITMAP = null;
 
-    public static String messageFinal = "";
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,10 +42,6 @@ public class EncryptScreen extends AppCompatActivity {
 
         View img = findViewById(R.id.picture);
         img.setBackgroundResource(R.drawable.security);
-
-        final EditText encodedMessage = (EditText) findViewById(R.id.encodeEditText);
-        final EditText decodedMessage = (EditText) findViewById(R.id.decodeMessageEditText);
-
 
         final Button encode = (Button) findViewById(R.id.encode);
         encode.setOnClickListener(new View.OnClickListener()
@@ -69,9 +62,6 @@ public class EncryptScreen extends AppCompatActivity {
 
                 Intent selectEncodeImage = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 startActivityForResult(selectEncodeImage,SELECT_ENCODE_PHOTO);
-                String message= encodedMessage.getText().toString();
-                messageFinal = message;
-                // pc.encode(getApplicationContext(),SELECTED_ENCODE_IMAGE_BITMAP, message);
             }
         });
 
@@ -93,38 +83,8 @@ public class EncryptScreen extends AppCompatActivity {
                     }
                 }
 
-//                Resources res = getResources();
-//                int resId = R.drawable.security;
-//
-//                BitmapFactory.Options options = new BitmapFactory.Options();
-//                options.inScaled = false;
-//                Bitmap picture = BitmapFactory.decodeResource(res, resId, options);
-
                 Intent selectDecodeImage = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 startActivityForResult(selectDecodeImage,SELECT_DECODE_PHOTO);
-                //String message = pc.decode(getApplicationContext(), SELECTED_DECODE_IMAGE_BITMAP);
-                //message = messageFinal;
-                //decodedMessage.setText(message);
-            }
-        });
-
-
-        final Button save = (Button) findViewById(R.id.save);
-        save.setOnClickListener(new View.OnClickListener()
-        {
-            public void onClick(View v){
-                // save button has been pressed
-                // Check Android Version
-                // If Version is 23 or greater check that user has given application permission
-                if(Build.VERSION.SDK_INT >= 23){
-                    // Check that user has given application permission (Write External Storage)
-                    if(checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
-                        // Application does not have permission (Write External Storage)
-                        // Request permission to access external storage
-                        requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},REQUEST_WRITE_EXTERNAL_STORAGE);
-                    }
-                }
-                //pc.save();
             }
         });
 
@@ -151,13 +111,11 @@ public class EncryptScreen extends AppCompatActivity {
                 //send email
                 Intent sendEmail = new Intent(Intent.ACTION_SEND);
                 sendEmail.setType("application/image");
-                sendEmail.putExtra(Intent.EXTRA_EMAIL, new String[]{"lanayusuf24@gmail.com"});
+                sendEmail.putExtra(Intent.EXTRA_EMAIL, new String[]{"asdf@yahoo.com"});
                 sendEmail.putExtra(Intent.EXTRA_SUBJECT,"Image Encrypt");
                 sendEmail.putExtra(Intent.EXTRA_TEXT, "Secret message in picture.");
                 sendEmail.putExtra(Intent.EXTRA_STREAM, Uri.parse("android.resource://com.example.lanayusuf.imageencrypt/drawable/security"));
                 startActivity(sendEmail);
-
-
             }
         });
 
@@ -191,8 +149,6 @@ public class EncryptScreen extends AppCompatActivity {
 
                         final EditText encodedMessage = (EditText) findViewById(R.id.encodeEditText);
                         String message = encodedMessage.getText().toString();
-                        messageFinal = message;
-
                         pc.encode(getApplicationContext(), bitmap, message);
                     }catch(IOException e){
                         e.printStackTrace();
