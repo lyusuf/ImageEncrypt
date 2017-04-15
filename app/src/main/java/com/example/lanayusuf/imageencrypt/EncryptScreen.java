@@ -96,7 +96,7 @@ public class EncryptScreen extends AppCompatActivity {
 
                 //send text
                 Intent sendText = new Intent(Intent.ACTION_SEND);
-                sendText.putExtra(Intent.EXTRA_STREAM, Uri.parse("android.resource://com.example.lanayusuf.imageencrypt/drawable/security"));
+                sendText.putExtra(Intent.EXTRA_STREAM, Uri.parse(SELECTED_ENCODE_IMAGE_URI));
                 sendText.setType("image/png");
                 startActivity(sendText);
             }
@@ -111,10 +111,10 @@ public class EncryptScreen extends AppCompatActivity {
                 //send email
                 Intent sendEmail = new Intent(Intent.ACTION_SEND);
                 sendEmail.setType("application/image");
-                sendEmail.putExtra(Intent.EXTRA_EMAIL, new String[]{"asdf@yahoo.com"});
+                sendEmail.putExtra(Intent.EXTRA_EMAIL, new String[]{});
                 sendEmail.putExtra(Intent.EXTRA_SUBJECT,"Image Encrypt");
                 sendEmail.putExtra(Intent.EXTRA_TEXT, "Secret message in picture.");
-                sendEmail.putExtra(Intent.EXTRA_STREAM, Uri.parse("android.resource://com.example.lanayusuf.imageencrypt/drawable/security"));
+                sendEmail.putExtra(Intent.EXTRA_STREAM, Uri.parse(SELECTED_ENCODE_IMAGE_URI));
                 startActivity(sendEmail);
             }
         });
